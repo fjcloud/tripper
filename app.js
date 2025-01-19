@@ -161,12 +161,12 @@ const groupActivitiesByDate = (activities) => {
 const ActivityCard = ({ activity, labels, onEdit, onDelete, onToggleStatus, expanded, onToggle }) => {
     return (
         <div 
-            className={`flex-1 bg-white rounded-lg shadow ${activity.status === 'pending' ? 'border-l-4 border-yellow-500' : ''} activity-card`}
+            className={`flex-1 bg-white rounded-lg shadow ${activity.status === 'pending' ? 'border-l-4 border-yellow-500' : ''}`}
             onClick={onToggle}
         >
             <div className="p-3 cursor-pointer hover:bg-gray-50">
-                <div className="flex justify-between items-start">
-                    <div className="flex items-center space-x-2">
+                <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
+                    <div className="flex items-center space-x-2 flex-wrap">
                         <span 
                             className="inline-block px-2 py-1 rounded text-sm text-white"
                             style={{ backgroundColor: labels.find(l => l.name === activity.label)?.color || '#000' }}>
@@ -178,10 +178,10 @@ const ActivityCard = ({ activity, labels, onEdit, onDelete, onToggleStatus, expa
                             </span>
                         )}
                     </div>
-                    <div className="flex space-x-2" onClick={e => e.stopPropagation()}>
+                    <div className="flex space-x-2 sm:ml-auto" onClick={e => e.stopPropagation()}>
                         <button 
                             onClick={onToggleStatus}
-                            className={`p-1 rounded ${
+                            className={`p-2 rounded ${
                                 activity.status === 'pending' 
                                     ? 'text-yellow-500 hover:bg-yellow-100' 
                                     : 'text-green-500 hover:bg-green-100'
@@ -191,10 +191,10 @@ const ActivityCard = ({ activity, labels, onEdit, onDelete, onToggleStatus, expa
                                 <Icons.Check className="w-4 h-4" />
                             }
                         </button>
-                        <button onClick={onEdit}>
+                        <button onClick={onEdit} className="p-2">
                             <Icons.Edit2 className="w-4 h-4 text-gray-500" />
                         </button>
-                        <button onClick={onDelete}>
+                        <button onClick={onDelete} className="p-2">
                             <Icons.X className="w-4 h-4 text-red-500" />
                         </button>
                     </div>
@@ -1062,9 +1062,10 @@ const TimelineApp = ({ tripId, onBack }) => {
     }
 
     return (
-        <div className="p-4 max-w-4xl mx-auto">
-            <div className="flex justify-between items-center mb-6">
-                <div className="space-y-2">
+        <div className="p-2 sm:p-4 max-w-4xl mx-auto">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 space-y-4 sm:space-y-0">
+                <div className="w-full sm:w-auto space-y-2">
                     <div className="flex items-center space-x-4">
                         <button 
                             onClick={onBack}
@@ -1072,24 +1073,24 @@ const TimelineApp = ({ tripId, onBack }) => {
                         >
                             <Icons.ArrowLeft className="w-6 h-6" />
                         </button>
-                        <h1 className="text-2xl font-bold">{trip.name}</h1>
+                        <h1 className="text-xl sm:text-2xl font-bold truncate">{trip.name}</h1>
                     </div>
-                    <div className="text-lg text-gray-600">
+                    <div className="text-base sm:text-lg text-gray-600">
                         Budget total: <span className="font-semibold">
                             {formatBudget(activities.reduce((sum, activity) => sum + (parseFloat(activity.budget) || 0), 0))}
                         </span>
                     </div>
                 </div>
-                <div className="space-x-2">
+                <div className="w-full sm:w-auto flex space-x-2">
                     <button 
                         onClick={() => setShowForm(true)}
-                        className="bg-blue-500 text-white px-4 py-2 rounded flex items-center"
+                        className="flex-1 sm:flex-none bg-blue-500 text-white px-4 py-2 rounded flex items-center justify-center"
                     >
-                        <Icons.Plus className="w-4 h-4 mr-2" /> Ajouter une activité
+                        <Icons.Plus className="w-4 h-4 mr-2" /> Activité
                     </button>
                     <button 
                         onClick={() => setShowSettings(true)}
-                        className="bg-gray-500 text-white px-4 py-2 rounded flex items-center"
+                        className="flex-1 sm:flex-none bg-gray-500 text-white px-4 py-2 rounded flex items-center justify-center"
                     >
                         <Icons.Settings className="w-4 h-4 mr-2" /> Paramètres
                     </button>
@@ -1097,7 +1098,7 @@ const TimelineApp = ({ tripId, onBack }) => {
             </div>
 
             {/* Timeline */}
-            <div className="space-y-8">
+            <div className="space-y-6">
                 {groupActivitiesByDate(activities).map(({ date, activities: groupedActivities }, groupIndex) => {
                     const dateString = `${date.year}-${date.month}-${date.day}`;
                     const isCollapsed = collapsedDays.has(dateString);
@@ -1105,18 +1106,22 @@ const TimelineApp = ({ tripId, onBack }) => {
                     return (
                         <div key={groupIndex} className="relative">
                             <div 
-                                className="sticky top-4 float-left w-40 pr-4 text-right cursor-pointer group"
+                                className="sm:sticky sm:top-4 w-full sm:w-40 sm:float-left sm:pr-4 mb-2 sm:mb-0"
                                 onClick={() => handleToggleDay(dateString)}
                             >
-                                <div className="text-gray-500 hover:text-gray-700">
-                                    <div className="font-medium">
-                                        <span>{date.dayName}</span>
+                                <div className="bg-white sm:bg-transparent p-2 sm:p-0 rounded-lg shadow sm:shadow-none cursor-pointer">
+                                    <div className="flex sm:block items-center justify-between text-gray-500 hover:text-gray-700">
+                                        <div className="font-medium">
+                                            <span>{date.dayName}</span>
+                                        </div>
+                                        <div className="flex sm:block items-center space-x-2 sm:space-x-0">
+                                            <span>{date.day} {date.month}</span>
+                                            <span className="text-sm">{date.year}</span>
+                                        </div>
                                     </div>
-                                    <div>{date.day} {date.month}</div>
-                                    <div className="text-sm">{date.year}</div>
                                 </div>
                             </div>
-                            <div className="ml-40 space-y-4">
+                            <div className="sm:ml-40 space-y-4">
                                 {isCollapsed ? (
                                     <div className="bg-white rounded-lg shadow p-3">
                                         <div className="flex flex-wrap gap-2">
