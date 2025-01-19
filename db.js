@@ -89,22 +89,31 @@ window.useTrips = () => {
         };
     }, []);
 
-    const createTrip = async (name, data) => {
+    const createTrip = async (name, data = {}) => {
         try {
-            const { data: { user } } = await supabase.auth.getUser();
-            
-            const { data: trip, error } = await supabase
-                .from('trips')
-                .insert([{
-                    name,
-                    data,
-                    owner_id: user.id
-                }])
-                .select()
-                .single();
+            const { data: tripId, error } = await supabase
+                .rpc('create_trip', { 
+                    trip_name: name,
+                    trip_data: data
+                });
 
-            if (error) throw error;
-            return trip;
+            if (error) {
+                console.error('Erreur création voyage:', error);
+                throw error;
+            }
+
+            if (tripId) {
+                const { data: trip, error: fetchError } = await supabase
+                    .from('trips')
+                    .select('*')
+                    .eq('id', tripId)
+                    .single();
+
+                if (fetchError) throw fetchError;
+                return trip;
+            }
+
+            return null;
         } catch (err) {
             setError(err.message);
             console.error('Erreur création voyage:', err);
