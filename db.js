@@ -8,15 +8,28 @@ window.useTrip = (tripId) => {
 
         const fetchTrip = async () => {
             try {
-                const { data, error } = await supabase
+                // Récupérer le voyage
+                const { data: tripData, error: tripError } = await supabase
                     .from('trips')
                     .select('*')
                     .eq('id', tripId)
                     .single();
 
-                if (error) throw error;
-                setTrip(data);
+                if (tripError) throw tripError;
+
+                // Récupérer les informations de partage séparément si nécessaire
+                const { data: shareData } = await supabase
+                    .from('trip_shares')
+                    .select('*')
+                    .eq('trip_id', tripId)
+                    .eq('shared_with_email', await supabase.auth.getUser().then(d => d.data.user.email));
+
+                setTrip({
+                    ...tripData,
+                    share_info: shareData?.[0]
+                });
             } catch (err) {
+                console.error('Erreur lors de la récupération du voyage:', err);
                 setError(err.message);
             } finally {
                 setLoading(false);
@@ -25,23 +38,25 @@ window.useTrip = (tripId) => {
 
         fetchTrip();
 
-        const subscription = supabase
+        // Souscrire aux changements
+        const tripSubscription = supabase
             .channel(`public:trips:id=eq.${tripId}`)
             .on('postgres_changes', { 
                 event: '*', 
                 schema: 'public', 
                 table: 'trips',
                 filter: `id=eq.${tripId}`
-            }, payload => {
+            }, async (payload) => {
                 console.log('Trip updated:', payload);
                 if (payload.new) {
-                    setTrip(payload.new);
+                    // Recharger les données complètes
+                    await fetchTrip();
                 }
             })
             .subscribe();
 
         return () => {
-            subscription.unsubscribe();
+            tripSubscription.unsubscribe();
         };
     }, [tripId]);
 
