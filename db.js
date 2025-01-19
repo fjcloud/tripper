@@ -10,7 +10,13 @@ window.useTrip = (tripId) => {
             try {
                 const { data, error } = await supabase
                     .from('trips')
-                    .select('*')
+                    .select(`
+                        *,
+                        trip_shares!inner(
+                            shared_with_email,
+                            access_level
+                        )
+                    `)
                     .eq('id', tripId)
                     .single();
 
@@ -27,14 +33,17 @@ window.useTrip = (tripId) => {
 
         // Subscribe to changes
         const subscription = supabase
-            .channel(`trip:${tripId}`)
+            .channel(`public:trips:id=eq.${tripId}`)
             .on('postgres_changes', { 
                 event: '*', 
                 schema: 'public', 
                 table: 'trips',
                 filter: `id=eq.${tripId}`
             }, payload => {
-                setTrip(payload.new);
+                console.log('Trip updated:', payload);
+                if (payload.new) {
+                    setTrip(payload.new);
+                }
             })
             .subscribe();
 
