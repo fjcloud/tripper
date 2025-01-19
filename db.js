@@ -4,35 +4,53 @@ window.useTrip = (tripId) => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        if (!tripId) return;
+        let isSubscribed = true;  // Pour éviter les mises à jour si le composant est démonté
 
         const fetchTrip = async () => {
+            if (!isSubscribed) return;
+            
             try {
-                // Récupérer le voyage
+                // Récupérer uniquement le voyage
                 const { data: tripData, error: tripError } = await supabase
                     .from('trips')
-                    .select('*')
+                    .select('id, name, created_at, owner_id, data')  // Spécifier explicitement les colonnes
                     .eq('id', tripId)
                     .single();
 
                 if (tripError) throw tripError;
 
-                // Récupérer les informations de partage séparément si nécessaire
-                const { data: shareData } = await supabase
-                    .from('trip_shares')
-                    .select('*')
-                    .eq('trip_id', tripId)
-                    .eq('shared_with_email', await supabase.auth.getUser().then(d => d.data.user.email));
+                // Récupérer l'email de l'utilisateur courant
+                const { data: { user } } = await supabase.auth.getUser();
+                
+                if (!isSubscribed) return;
 
-                setTrip({
-                    ...tripData,
-                    share_info: shareData?.[0]
-                });
+                // Récupérer les informations de partage si l'utilisateur n'est pas le propriétaire
+                if (tripData.owner_id !== user.id) {
+                    const { data: shareData } = await supabase
+                        .from('trip_shares')
+                        .select('access_level')
+                        .eq('trip_id', tripId)
+                        .eq('shared_with_email', user.email)
+                        .single();
+
+                    if (!isSubscribed) return;
+                    
+                    setTrip({
+                        ...tripData,
+                        share_info: shareData
+                    });
+                } else {
+                    setTrip(tripData);
+                }
             } catch (err) {
                 console.error('Erreur lors de la récupération du voyage:', err);
-                setError(err.message);
+                if (isSubscribed) {
+                    setError(err.message);
+                }
             } finally {
-                setLoading(false);
+                if (isSubscribed) {
+                    setLoading(false);
+                }
             }
         };
 
@@ -40,22 +58,22 @@ window.useTrip = (tripId) => {
 
         // Souscrire aux changements
         const tripSubscription = supabase
-            .channel(`public:trips:id=eq.${tripId}`)
+            .channel(`trips:${tripId}`)
             .on('postgres_changes', { 
                 event: '*', 
                 schema: 'public', 
                 table: 'trips',
                 filter: `id=eq.${tripId}`
             }, async (payload) => {
-                console.log('Trip updated:', payload);
-                if (payload.new) {
-                    // Recharger les données complètes
+                if (isSubscribed && payload.new) {
                     await fetchTrip();
                 }
             })
             .subscribe();
 
+        // Cleanup
         return () => {
+            isSubscribed = false;
             tripSubscription.unsubscribe();
         };
     }, [tripId]);
