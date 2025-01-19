@@ -117,6 +117,7 @@ const formatLinks = (links) => {
 
 // Add this utility function near the other formatting functions
 const formatBudget = (amount) => {
+    if (!amount && amount !== 0) return ''; // Retourner une chaîne vide si pas de budget
     return new Intl.NumberFormat('fr-FR', {
         style: 'currency',
         currency: 'EUR'
@@ -210,7 +211,9 @@ const ActivityCard = ({ activity, labels, onEdit, onDelete, onToggleStatus, expa
                     <div className="mt-2 text-sm text-gray-600 space-y-1">
                         <p><span className="font-bold">Durée:</span> {formatDuration(activity.duration)}</p>
                         <p><span className="font-bold">Personnes:</span> {activity.people}</p>
-                        <p><span className="font-bold">Budget:</span> {formatBudget(activity.budget)}</p>
+                        {(activity.budget || activity.budget === 0) && (
+                            <p><span className="font-bold">Budget:</span> {formatBudget(activity.budget)}</p>
+                        )}
                         {activity.notes && <p><span className="font-bold">Notes:</span> {activity.notes}</p>}
                         {activity.links && (
                             <p>
@@ -264,8 +267,8 @@ const ActivityForm = ({ formData, setFormData, labels, onSubmit, onClose, isEdit
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center modal-overlay">
-            <div className="bg-white p-6 rounded-lg w-full max-w-lg modal-content">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div className="bg-white p-6 rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto">
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-bold">
                         {isEdit ? 'Modifier l\'activité' : 'Nouvelle activité'}
@@ -401,13 +404,20 @@ const ActivityForm = ({ formData, setFormData, labels, onSubmit, onClose, isEdit
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium">Budget (€)</label>
+                        <label className="block text-sm font-medium">
+                            Budget (optionnel)
+                        </label>
                         <input
                             type="number"
                             value={formData.budget}
-                            onChange={e => setFormData({...formData, budget: e.target.value})}
+                            onChange={e => setFormData({
+                                ...formData, 
+                                budget: e.target.value ? parseFloat(e.target.value) : ''
+                            })}
                             className="mt-1 w-full border rounded p-2"
-                            required
+                            min="0"
+                            step="0.01"
+                            placeholder="Entrez un montant (optionnel)"
                         />
                     </div>
                     <div>
