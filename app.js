@@ -709,10 +709,10 @@ const TripsList = ({ onSelectTrip, onCreateTrip }) => {
         const newTrip = await createTrip(name, {
             activities: [],
             labels: [
-                { name: 'Voyage', color: '#FF9800' },
-                { name: 'Hôtel', color: '#2196F3' },
-                { name: 'Restaurant', color: '#4CAF50' },
-                { name: 'Activité', color: '#9C27B0' }
+        { name: 'Voyage', color: '#FF9800' },
+        { name: 'Hôtel', color: '#2196F3' },
+        { name: 'Restaurant', color: '#4CAF50' },
+        { name: 'Activité', color: '#9C27B0' }
             ]
         });
 
@@ -1047,11 +1047,11 @@ const TimelineApp = ({ tripId, onBack }) => {
                     if (activity.label === currentLabel.name) {
                         return { ...activity, label: labelForm.name };
                     }
-                    return activity;
+        return activity;
                 });
                 updateActivities(newActivities);
             }
-        } else {
+                    } else {
             // Création d'un nouveau label
             updateLabels([...labels, labelForm]);
         }
@@ -1077,12 +1077,12 @@ const TimelineApp = ({ tripId, onBack }) => {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 space-y-4 sm:space-y-0">
                 <div className="w-full sm:w-auto space-y-2">
                     <div className="flex items-center space-x-4">
-                        <button 
+                    <button 
                             onClick={onBack}
                             className="text-gray-600 hover:text-gray-800"
                         >
                             <Icons.ArrowLeft className="w-6 h-6" />
-                        </button>
+                    </button>
                         <h1 className="text-xl sm:text-2xl font-bold truncate">{trip.name}</h1>
                     </div>
                     <div className="text-base sm:text-lg text-gray-600">
@@ -1159,16 +1159,16 @@ const TimelineApp = ({ tripId, onBack }) => {
                                     </div>
                                 ) : (
                                     groupedActivities.map((activity, index) => (
-                                        <ActivityCard 
-                                            key={index}
-                                            activity={activity}
-                                            labels={labels}
-                                            onEdit={() => handleEditActivity(activity)}
-                                            onDelete={() => handleDeleteActivity(activity)}
-                                            onToggleStatus={() => handleToggleStatus(activity)}
+                    <ActivityCard 
+                        key={index}
+                        activity={activity}
+                        labels={labels}
+                        onEdit={() => handleEditActivity(activity)}
+                        onDelete={() => handleDeleteActivity(activity)}
+                        onToggleStatus={() => handleToggleStatus(activity)}
                                             expanded={expandedActivities.has(activities.indexOf(activity))}
-                                            onToggle={() => handleToggle(activity)}
-                                        />
+                        onToggle={() => handleToggle(activity)}
+                    />
                                     ))
                                 )}
                             </div>
@@ -1200,8 +1200,8 @@ const TimelineApp = ({ tripId, onBack }) => {
                     setLabelForm({ name: '', color: '#000000' });
                     setCurrentLabel(null);
                 }}
-                labelForm={labelForm}
-                setLabelForm={setLabelForm}
+                    labelForm={labelForm}
+                    setLabelForm={setLabelForm}
                 onSubmitLabel={handleSubmitLabel}
                 currentLabel={currentLabel}
                 setCurrentLabel={setCurrentLabel}
