@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline de Voyage</title>
+    <!-- Tailwind CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="styles.css" rel="stylesheet">
+    <!-- React et ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Feather Icons -->
+    <script src="https://unpkg.com/feather-icons"></script>
+    <!-- Supabase -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-gray-100">
+    <div id="root"></div>
+    <!-- Initialize Supabase first -->
+    <script>
+        const supabaseClient = supabase.createClient(
+            'https://sjulddrrlvveglfpeuza.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNqdWxkZHJybHZ2ZWdsZnBldXphIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcyODk4MDQsImV4cCI6MjA1Mjg2NTgwNH0.2krYBYiz1gUFa2QUWSKTKRSp8E0TI87YQeT9iUkY1ZE'
+        );
+        window.supabase = supabaseClient;
+    </script>
+    <script type="text/babel" src="db.js"></script>
+    <script type="text/babel" src="auth.js"></script>
+    <script type="text/babel" src="app.js"></script>
+</body>
+</html>
